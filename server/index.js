@@ -51,6 +51,14 @@ app.post('/api/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = db.createUser(username, hashedPassword, displayName);
 
+    // Make first user an admin automatically
+    const allUsers = db.getAllUsers();
+    if (allUsers.length === 1) {
+      user.is_admin = true;
+      db.saveDatabase();
+      console.log(`First user ${user.username} promoted to admin`);
+    }
+
     db.addLog('info', 'user_registered', user.id, user.username, { displayName });
 
     res.status(201).json({
