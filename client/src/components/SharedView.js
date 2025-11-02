@@ -129,23 +129,13 @@ function SharedView({ token, user }) {
         <div className="your-profile-section">
           <h2>👤 Your Profile</h2>
           <div className="profile-card">
-            <div className="profile-avatar-large">
+            <div className="profile-avatar-large" style={{ background: user.profileColor || '#667eea' }}>
               {user.profilePicture ? (
-                user.profilePicture.startsWith('data:') || user.profilePicture.startsWith('http') ? (
-                  <img src={user.profilePicture} alt={user.displayName} className="profile-img-large" />
-                ) : (
-                  <div 
-                    className="profile-emoji-large" 
-                    style={{ background: user.profileColor || '#667eea' }}
-                  >
-                    {user.profilePicture}
-                  </div>
-                )
+                <div className="profile-emoji-large">
+                  {user.profilePicture}
+                </div>
               ) : (
-                <div 
-                  className="profile-placeholder-large" 
-                  style={{ background: user.profileColor || '#667eea' }}
-                >
+                <div className="profile-placeholder-large">
                   {user.displayName?.charAt(0).toUpperCase() || '👤'}
                 </div>
               )}
