@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import './MealEntry.css';
 
+// Use relative URL since frontend and backend are served from same server
 const API_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:5001/api'
-  : `http://${window.location.hostname}:5001/api`;
+  : '/api';
 
 // Helper function to get today's date in YYYY-MM-DD format using LOCAL time
 const getTodayLocal = () => {

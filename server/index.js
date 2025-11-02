@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 const db = require('./database');
 
 const app = express();
@@ -10,6 +11,9 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from the React app build folder
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
@@ -623,6 +627,11 @@ app.get('/api/admin/logs', authenticateToken, requireAdmin, (req, res) => {
     console.error('Error fetching logs:', error);
     res.status(500).json({ error: 'Server error' });
   }
+});
+
+// Serve React app for any other routes (must be after all API routes)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
 });
 
 app.listen(PORT, () => {

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import './Login.css';
 import ForgotPassword from './ForgotPassword';
 
+// Use relative URL since frontend and backend are served from same server
 const API_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:5001/api'
-  : `http://${window.location.hostname}:5001/api`;
+  : '/api';
 
 function Login({ onLogin }) {
   const [isRegister, setIsRegister] = useState(false);

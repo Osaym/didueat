@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import History from './History';
 import './SharedView.css';
 
+// Use relative URL since frontend and backend are served from same server
 const API_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:5001/api'
-  : `http://${window.location.hostname}:5001/api`;
+  : '/api';
 
 function SharedView({ token }) {
   const [sharedUsers, setSharedUsers] = useState([]);
