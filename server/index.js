@@ -358,6 +358,30 @@ app.patch('/api/user/display-name', authenticateToken, async (req, res) => {
   }
 });
 
+// Get user profile
+app.get('/api/user/profile', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await db.getUserById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      username: user.username,
+      display_name: user.display_name,
+      profile_picture: user.profile_picture,
+      profile_color: user.profile_color,
+      dark_mode: user.dark_mode,
+      is_admin: user.is_admin
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Update profile color
 app.patch('/api/user/profile-color', authenticateToken, async (req, res) => {
   try {

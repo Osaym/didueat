@@ -17,9 +17,32 @@ function App() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('token');
+    
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
+      
+      // Fetch fresh user data if profileColor is missing
+      if (!parsedUser.profileColor && storedToken) {
+        fetch('http://localhost:5001/api/user/profile', {
+          headers: {
+            'Authorization': `Bearer ${storedToken}`
+          }
+        })
+          .then(res => res.json())
+          .then(data => {
+            const updatedUser = {
+              ...parsedUser,
+              profileColor: data.profile_color || '#667eea',
+              profilePicture: data.profile_picture || parsedUser.profilePicture
+            };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+          })
+          .catch(err => console.error('Failed to fetch user profile:', err));
+      }
+      
       // Apply dark mode if user has it enabled, otherwise light mode
       if (parsedUser.darkMode) {
         document.documentElement.classList.add('dark-mode');
