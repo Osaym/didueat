@@ -80,17 +80,17 @@ The app will be available at:
 1. **Register an Account**: 
    - Open http://localhost:3000
    - Click "Register" and create an account
-   - Create two accounts (one for your girlfriend, one for you)
+   - Create two accounts (one for your friend, one for you)
 
 2. **Log Your Meals**:
-   - Login with your girlfriend's account
+   - Login with your friend's account
    - Go to "Today's Meals" tab
    - Use the form to log breakfast, lunch, or dinner
    - Check the water checkbox if water was consumed
    - Click "Save Meal"
 
 3. **Grant Access**:
-   - Still logged in as your girlfriend
+   - Still logged in as your friend
    - Go to "Shared with Me" tab
    - Enter your username in the "Grant Access" section
    - Click "Grant Access"
@@ -98,12 +98,12 @@ The app will be available at:
 4. **View Her Dashboard**:
    - Logout and login with your account
    - Go to "Shared with Me" tab
-   - Click on your girlfriend's name
+   - Click on your friend's name
    - View all her meal history!
 
 ### Daily Use
 
-Your girlfriend can:
+Your friend can:
 - Log meals throughout the day
 - Check off water intake for each meal
 - View her history
@@ -202,7 +202,5 @@ NODE_ENV=production
 MIT License - See LICENSE file for details
 
 ---
-
-Made with ❤️ by Osaym Omar
 
 Enjoy tracking your meals! 🍽️💧
