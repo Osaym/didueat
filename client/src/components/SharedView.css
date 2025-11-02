@@ -44,6 +44,7 @@
   justify-content: center;
   border: 4px solid white;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  overflow: hidden;
 }
 
 .dark-mode .profile-avatar-large {
@@ -60,8 +61,6 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  overflow: hidden;
 }
 
 .profile-details {
