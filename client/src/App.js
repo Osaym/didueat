@@ -231,7 +231,7 @@ function App() {
           </>
         )}
         {currentView === 'history' && <History token={token} userId={user?.id} />}
-        {currentView === 'shared' && <SharedView token={token} />}
+        {currentView === 'shared' && <SharedView token={token} user={user} />}
         {currentView === 'settings' && <Settings token={token} user={user} onUserUpdate={handleUserUpdate} />}
         {currentView === 'admin' && <Admin token={token} user={user} />}
       </main>

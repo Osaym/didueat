@@ -42,22 +42,15 @@ app.post('/api/register', async (req, res) => {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
-    // Check if username already exists
+    // Check if username already exists (case-insensitive)
     const existing = await db.getUserByUsername(username);
     if (existing) {
       return res.status(400).json({ error: 'Username already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    // Username will be stored in lowercase by the schema
     const user = await db.createUser(username, hashedPassword, displayName);
-
-    // Make first user an admin automatically
-    const allUsers = await db.getAllUsers();
-    if (allUsers.length === 1) {
-      user.is_admin = true;
-      await db.saveDatabase();
-      console.log(`First user ${user.username} promoted to admin`);
-    }
 
     await db.addLog('info', 'user_registered', user._id, user.username, { displayName });
 
@@ -76,6 +69,7 @@ app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    // getUserByUsername handles case-insensitive lookup
     const user = await db.getUserByUsername(username);
 
     if (!user) {
@@ -373,7 +367,10 @@ app.patch('/api/user/profile-color', authenticateToken, async (req, res) => {
     const user = await db.updateUserProfileColor(userId, profileColor);
 
     if (user) {
-      res.json({ message: 'Profile color updated' });
+      res.json({ 
+        message: 'Profile color updated', 
+        profileColor: user.profile_color 
+      });
     } else {
       res.status(404).json({ error: 'User not found' });
     }

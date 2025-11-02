@@ -7,7 +7,7 @@ const API_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:5001/api'
   : '/api';
 
-function SharedView({ token }) {
+function SharedView({ token, user }) {
   const [sharedUsers, setSharedUsers] = useState([]);
   const [grantedUsers, setGrantedUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -124,6 +124,41 @@ function SharedView({ token }) {
 
   return (
     <div className="shared-view">
+      {/* Your Profile Section */}
+      {user && (
+        <div className="your-profile-section">
+          <h2>👤 Your Profile</h2>
+          <div className="profile-card">
+            <div className="profile-avatar-large">
+              {user.profilePicture ? (
+                user.profilePicture.startsWith('data:') || user.profilePicture.startsWith('http') ? (
+                  <img src={user.profilePicture} alt={user.displayName} className="profile-img-large" />
+                ) : (
+                  <div 
+                    className="profile-emoji-large" 
+                    style={{ background: user.profileColor || '#667eea' }}
+                  >
+                    {user.profilePicture}
+                  </div>
+                )
+              ) : (
+                <div 
+                  className="profile-placeholder-large" 
+                  style={{ background: user.profileColor || '#667eea' }}
+                >
+                  {user.displayName?.charAt(0).toUpperCase() || '👤'}
+                </div>
+              )}
+            </div>
+            <div className="profile-details">
+              <h3 className="profile-display-name">{user.displayName}</h3>
+              <p className="profile-username">@{user.username}</p>
+              <p className="profile-hint">💡 Share this username with others so they can grant you access</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="share-section">
         <h2>Grant Access to Your Dashboard</h2>
         <p className="info-text">Allow someone to view your meal history</p>

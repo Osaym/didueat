@@ -4,6 +4,86 @@
   gap: 1.5rem;
 }
 
+/* Your Profile Section */
+.your-profile-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.your-profile-section h2 {
+  color: white;
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.profile-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2rem;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+.profile-avatar-large {
+  flex-shrink: 0;
+}
+
+.profile-img-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.profile-emoji-large,
+.profile-placeholder-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  border: 4px solid white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  color: white;
+  font-weight: bold;
+}
+
+.profile-details {
+  flex: 1;
+}
+
+.profile-display-name {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  color: #2d3748;
+  font-weight: 700;
+}
+
+.profile-username {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.1rem;
+  color: #667eea;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.profile-hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #718096;
+  font-style: italic;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -333,6 +413,40 @@
 }
 
 @media (max-width: 768px) {
+  .your-profile-section {
+    padding: 1.5rem;
+  }
+
+  .your-profile-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .profile-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+  }
+
+  .profile-img-large,
+  .profile-emoji-large,
+  .profile-placeholder-large {
+    width: 70px;
+    height: 70px;
+    font-size: 2rem;
+  }
+
+  .profile-display-name {
+    font-size: 1.3rem;
+  }
+
+  .profile-username {
+    font-size: 1rem;
+  }
+
+  .profile-hint {
+    font-size: 0.85rem;
+  }
+
   .share-section,
   .shared-users-section {
     padding: 1.25rem;
@@ -375,6 +489,22 @@
 }
 
 @media (max-width: 480px) {
+  .your-profile-section {
+    padding: 1rem;
+  }
+
+  .profile-card {
+    padding: 1rem;
+  }
+
+  .profile-img-large,
+  .profile-emoji-large,
+  .profile-placeholder-large {
+    width: 60px;
+    height: 60px;
+    font-size: 1.8rem;
+  }
+
   .share-section,
   .shared-users-section {
     padding: 1rem;

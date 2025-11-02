@@ -43,7 +43,8 @@ const database = {
   },
 
   getUserByUsername: async (username) => {
-    return await User.findOne({ username });
+    // Search case-insensitively by converting to lowercase
+    return await User.findOne({ username: username.toLowerCase() });
   },
 
   getUserById: async (id) => {
