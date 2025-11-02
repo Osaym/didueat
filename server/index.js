@@ -591,7 +591,7 @@ app.post('/api/admin/reset-password', authenticateToken, requireAdmin, async (re
   try {
     const { userId, newPassword } = req.body;
     const allUsers = await db.getAllUsers();
-    const targetUser = allUsers.find(u => u.id === userId);
+    const targetUser = allUsers.find(u => u.id.toString() === userId.toString());
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await db.updateUserPassword(userId, hashedPassword);
     
@@ -612,7 +612,7 @@ app.delete('/api/admin/delete-user/:userId', authenticateToken, requireAdmin, as
   try {
     const { userId } = req.params;
     const allUsers = await db.getAllUsers();
-    const targetUser = allUsers.find(u => u.id === userId);
+    const targetUser = allUsers.find(u => u.id.toString() === userId.toString());
     const success = await db.deleteUser(userId);
     if (success) {
       await db.addLog('warning', 'user_deleted_by_admin', userId, targetUser?.username || 'unknown', {

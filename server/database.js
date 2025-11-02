@@ -4,15 +4,13 @@ const { User, SharedAccess, MealEntry, SecurityQuestion, Log } = require('./mode
 // MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/didueat';
 
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(MONGODB_URI)
   .then(() => {
     console.log('✅ Connected to MongoDB successfully');
   })
   .catch((err) => {
     console.error('❌ MongoDB connection error:', err);
+    console.error('Make sure MongoDB is running or MONGODB_URI is set correctly');
     process.exit(1);
   });
 
