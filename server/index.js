@@ -1,10 +1,31 @@
 require('dotenv').config({ path: __dirname + '/.env' });
+
+// Validate required environment variables
+const requiredEnvVars = ['JWT_SECRET', 'MONGODB_URI'];
+const missing = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missing.length > 0) {
+  console.error('❌ Missing required environment variables:', missing.join(', '));
+  console.error('Please check your .env file or set these variables in your hosting platform');
+  process.exit(1);
+}
+
+if (process.env.JWT_SECRET === 'your-secret-key-change-this-in-production') {
+  console.warn('⚠️  WARNING: Using default JWT_SECRET! Change this in production!');
+  if (process.env.NODE_ENV === 'production') {
+    console.error('❌ Cannot use default JWT_SECRET in production!');
+    process.exit(1);
+  }
+}
+
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const compression = require('compression');
+const rateLimit = require('express-rate-limit');
+const { body, validationResult } = require('express-validator');
 const db = require('./database');
 
 const app = express();
@@ -13,6 +34,27 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(compression()); // Compress all HTTP responses
 app.use(express.json({ limit: '1mb' })); // Limit payload size to prevent abuse
+
+// Rate limiting for authentication endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 attempts per window per IP
+  message: { error: 'Too many attempts, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Rate limiting for general API endpoints
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per window per IP
+  message: { error: 'Too many requests, please slow down' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Apply general rate limiter to all API routes
+app.use('/api/', apiLimiter);
 
 // Serve static files from the React app build folder
 app.use(express.static(path.join(__dirname, '../client/build')));
@@ -36,13 +78,37 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Register endpoint
-app.post('/api/register', async (req, res) => {
+app.post('/api/register', 
+  authLimiter, // Apply rate limiting
+  [
+    body('username')
+      .trim()
+      .isLength({ min: 3, max: 30 })
+      .withMessage('Username must be 3-30 characters')
+      .matches(/^[a-zA-Z0-9_-]+$/)
+      .withMessage('Username can only contain letters, numbers, underscores, and hyphens'),
+    body('password')
+      .isLength({ min: 8 })
+      .withMessage('Password must be at least 8 characters')
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+      .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
+    body('displayName')
+      .trim()
+      .isLength({ min: 1, max: 50 })
+      .withMessage('Display name must be 1-50 characters')
+      .escape() // Sanitize to prevent XSS
+  ],
+  async (req, res) => {
   try {
-    const { username, password, displayName } = req.body;
-
-    if (!username || !password || !displayName) {
-      return res.status(400).json({ error: 'All fields are required' });
+    // Check validation results
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        error: errors.array()[0].msg // Return first error message
+      });
     }
+
+    const { username, password, displayName } = req.body;
 
     // Check if username already exists (case-insensitive)
     const existing = await db.getUserByUsername(username);
@@ -67,8 +133,27 @@ app.post('/api/register', async (req, res) => {
 });
 
 // Login endpoint
-app.post('/api/login', async (req, res) => {
+app.post('/api/login',
+  authLimiter, // Apply rate limiting
+  [
+    body('username')
+      .trim()
+      .notEmpty()
+      .withMessage('Username is required'),
+    body('password')
+      .notEmpty()
+      .withMessage('Password is required')
+  ],
+  async (req, res) => {
   try {
+    // Check validation results
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        error: errors.array()[0].msg
+      });
+    }
+
     const { username, password } = req.body;
 
     // getUserByUsername handles case-insensitive lookup
@@ -112,14 +197,37 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Add or update meal entry
-app.post('/api/meals', authenticateToken, async (req, res) => {
+app.post('/api/meals', 
+  authenticateToken,
+  [
+    body('date')
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Date must be in YYYY-MM-DD format'),
+    body('mealType')
+      .isIn(['breakfast', 'lunch', 'dinner', 'Breakfast', 'Lunch', 'Dinner'])
+      .withMessage('Meal type must be breakfast, lunch, or dinner'),
+    body('foodDescription')
+      .optional()
+      .trim()
+      .isLength({ max: 500 })
+      .withMessage('Food description must be less than 500 characters'),
+    body('drinks')
+      .optional()
+      .isArray()
+      .withMessage('Drinks must be an array')
+  ],
+  async (req, res) => {
   try {
+    // Check validation results
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        error: errors.array()[0].msg
+      });
+    }
+
     const { date, mealType, foodDescription, hadWater, drinks } = req.body;
     const userId = req.user.id;
-
-    if (!date || !mealType) {
-      return res.status(400).json({ error: 'Date and meal type are required' });
-    }
 
     // Support both old hadWater boolean and new drinks array
     const drinksData = drinks || (hadWater ? ['Water'] : []);
@@ -176,8 +284,26 @@ app.get('/api/meals', authenticateToken, async (req, res) => {
 });
 
 // Grant access to another user
-app.post('/api/share-access', authenticateToken, async (req, res) => {
+app.post('/api/share-access', 
+  authenticateToken,
+  [
+    body('viewerUsername')
+      .trim()
+      .isLength({ min: 3, max: 30 })
+      .withMessage('Username must be 3-30 characters')
+      .matches(/^[a-zA-Z0-9_-]+$/)
+      .withMessage('Invalid username format')
+  ],
+  async (req, res) => {
   try {
+    // Check validation results
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        error: errors.array()[0].msg
+      });
+    }
+
     const { viewerUsername } = req.body;
     const ownerId = req.user.id;
 
@@ -341,16 +467,29 @@ app.patch('/api/user/profile-picture', authenticateToken, async (req, res) => {
 });
 
 // Update display name
-app.patch('/api/user/display-name', authenticateToken, async (req, res) => {
+app.patch('/api/user/display-name', 
+  authenticateToken,
+  [
+    body('displayName')
+      .trim()
+      .isLength({ min: 1, max: 50 })
+      .withMessage('Display name must be 1-50 characters')
+      .escape()
+  ],
+  async (req, res) => {
   try {
+    // Check validation results
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        error: errors.array()[0].msg
+      });
+    }
+
     const { displayName } = req.body;
     const userId = req.user.id;
 
-    if (!displayName || displayName.trim().length === 0) {
-      return res.status(400).json({ error: 'Display name is required' });
-    }
-
-    const user = await db.updateUserDisplayName(userId, displayName.trim());
+    const user = await db.updateUserDisplayName(userId, displayName);
 
     if (user) {
       res.json({ 
@@ -399,8 +538,23 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
 });
 
 // Update profile color
-app.patch('/api/user/profile-color', authenticateToken, async (req, res) => {
+app.patch('/api/user/profile-color', 
+  authenticateToken,
+  [
+    body('profileColor')
+      .matches(/^#[0-9A-Fa-f]{6}$/)
+      .withMessage('Profile color must be a valid hex color (e.g., #667eea)')
+  ],
+  async (req, res) => {
   try {
+    // Check validation results
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        error: errors.array()[0].msg
+      });
+    }
+
     const { profileColor } = req.body;
     const userId = req.user.id;
 
