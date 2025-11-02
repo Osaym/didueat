@@ -1,327 +1,297 @@
-const fs = require('fs');
-const path = require('path');
+const mongoose = require('mongoose');
+const { User, SharedAccess, MealEntry, SecurityQuestion, Log } = require('./models');
 
-const DB_PATH = path.join(__dirname, 'data.json');
+// MongoDB connection
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/didueat';
 
-// Initialize database structure
-let db = {
-  users: [],
-  sharedAccess: [],
-  mealEntries: [],
-  securityQuestions: [],
-  logs: [],
-  nextUserId: 1,
-  nextAccessId: 1,
-  nextMealId: 1,
-  nextSecurityId: 1,
-  nextLogId: 1
-};
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+  .then(() => {
+    console.log('✅ Connected to MongoDB successfully');
+  })
+  .catch((err) => {
+    console.error('❌ MongoDB connection error:', err);
+    process.exit(1);
+  });
 
-// Load existing data
-if (fs.existsSync(DB_PATH)) {
-  try {
-    const data = fs.readFileSync(DB_PATH, 'utf8');
-    const loadedDb = JSON.parse(data);
-    
-    // Merge with default structure to ensure all fields exist
-    db = {
-      users: loadedDb.users || [],
-      sharedAccess: loadedDb.sharedAccess || [],
-      mealEntries: loadedDb.mealEntries || [],
-      securityQuestions: loadedDb.securityQuestions || [],
-      logs: loadedDb.logs || [],
-      nextUserId: loadedDb.nextUserId || 1,
-      nextAccessId: loadedDb.nextAccessId || 1,
-      nextMealId: loadedDb.nextMealId || 1,
-      nextSecurityId: loadedDb.nextSecurityId || 1,
-      nextLogId: loadedDb.nextLogId || 1
-    };
-    
-    // Migrate old meal entries to include drinks field
-    db.mealEntries = db.mealEntries.map(meal => {
-      if (!meal.drinks) {
-        return {
-          ...meal,
-          drinks: meal.had_water ? ['Water'] : []
-        };
-      }
-      return meal;
-    });
-    
-    console.log('Database loaded from file');
-  } catch (err) {
-    console.error('Error loading database, starting fresh:', err);
-  }
-} else {
-  saveDb();
-  console.log('New database initialized');
-}
+// Handle connection events
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB connected');
+});
 
-function saveDb() {
-  fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
-}
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+});
 
 // Database operations
 const database = {
   // User operations
-  createUser: (username, password, displayName) => {
-    const user = {
-      id: db.nextUserId++,
+  createUser: async (username, password, displayName) => {
+    const user = new User({
       username,
       password,
       display_name: displayName,
       dark_mode: false,
-      profile_picture: null,
-      created_at: new Date().toISOString()
-    };
-    db.users.push(user);
-    saveDb();
+      profile_picture: null
+    });
+    await user.save();
     return user;
   },
 
-  getUserByUsername: (username) => {
-    return db.users.find(u => u.username === username);
+  getUserByUsername: async (username) => {
+    return await User.findOne({ username });
   },
 
-  getUserById: (id) => {
-    return db.users.find(u => u.id === id);
+  getUserById: async (id) => {
+    return await User.findById(id);
   },
 
-  updateUserDarkMode: (userId, darkMode) => {
-    const user = db.users.find(u => u.id === userId);
-    if (user) {
-      user.dark_mode = darkMode;
-      saveDb();
-    }
+  updateUserDarkMode: async (userId, darkMode) => {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { dark_mode: darkMode },
+      { new: true }
+    );
     return user;
   },
 
-  updateUserProfilePicture: (userId, profilePicture) => {
-    const user = db.users.find(u => u.id === userId);
-    if (user) {
-      user.profile_picture = profilePicture;
-      saveDb();
-    }
+  updateUserProfilePicture: async (userId, profilePicture) => {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { profile_picture: profilePicture },
+      { new: true }
+    );
     return user;
   },
 
-  updateUserProfileColor: (userId, profileColor) => {
-    const user = db.users.find(u => u.id === userId);
-    if (user) {
-      user.profile_color = profileColor;
-      saveDb();
-    }
+  updateUserProfileColor: async (userId, profileColor) => {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { profile_color: profileColor },
+      { new: true }
+    );
     return user;
   },
 
-  updateUserDisplayName: (userId, displayName) => {
-    const user = db.users.find(u => u.id === userId);
-    if (user) {
-      user.display_name = displayName;
-      saveDb();
-    }
+  updateUserDisplayName: async (userId, displayName) => {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { display_name: displayName },
+      { new: true }
+    );
     return user;
   },
 
-  updateUserPassword: (userId, newPassword) => {
-    const user = db.users.find(u => u.id === userId);
-    if (user) {
-      user.password = newPassword;
-      saveDb();
-    }
+  updateUserPassword: async (userId, newPassword) => {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { password: newPassword },
+      { new: true }
+    );
     return user;
   },
 
   // Shared access operations
-  createSharedAccess: (ownerId, viewerId) => {
-    const existing = db.sharedAccess.find(
-      sa => sa.owner_id === ownerId && sa.viewer_id === viewerId
-    );
-    
-    if (existing) return existing;
+  createSharedAccess: async (ownerId, viewerId) => {
+    try {
+      const existing = await SharedAccess.findOne({
+        owner_id: ownerId,
+        viewer_id: viewerId
+      });
+      
+      if (existing) return existing;
 
-    const access = {
-      id: db.nextAccessId++,
-      owner_id: ownerId,
-      viewer_id: viewerId,
-      created_at: new Date().toISOString()
-    };
-    db.sharedAccess.push(access);
-    saveDb();
-    return access;
-  },
-
-  getSharedAccess: (ownerId, viewerId) => {
-    return db.sharedAccess.find(
-      sa => sa.owner_id === ownerId && sa.viewer_id === viewerId
-    );
-  },
-
-  getSharedWithUser: (viewerId) => {
-    const accessRecords = db.sharedAccess.filter(sa => sa.viewer_id === viewerId);
-    return accessRecords.map(sa => {
-      const user = db.users.find(u => u.id === sa.owner_id);
-      return user ? { ...user, access_id: sa.id, granted_at: sa.created_at } : null;
-    }).filter(Boolean);
-  },
-
-  getSharedByUser: (ownerId) => {
-    const accessRecords = db.sharedAccess.filter(sa => sa.owner_id === ownerId);
-    return accessRecords.map(sa => {
-      const user = db.users.find(u => u.id === sa.viewer_id);
-      return user ? { ...user, access_id: sa.id, granted_at: sa.created_at } : null;
-    }).filter(Boolean);
-  },
-
-  revokeSharedAccess: (ownerId, viewerId) => {
-    const index = db.sharedAccess.findIndex(
-      sa => sa.owner_id === ownerId && sa.viewer_id === viewerId
-    );
-    if (index !== -1) {
-      db.sharedAccess.splice(index, 1);
-      saveDb();
-      return true;
+      const access = new SharedAccess({
+        owner_id: ownerId,
+        viewer_id: viewerId
+      });
+      await access.save();
+      return access;
+    } catch (error) {
+      if (error.code === 11000) {
+        // Duplicate key error, return existing
+        return await SharedAccess.findOne({
+          owner_id: ownerId,
+          viewer_id: viewerId
+        });
+      }
+      throw error;
     }
-    return false;
+  },
+
+  getSharedAccess: async (ownerId, viewerId) => {
+    return await SharedAccess.findOne({
+      owner_id: ownerId,
+      viewer_id: viewerId
+    });
+  },
+
+  getSharedWithUser: async (viewerId) => {
+    const accessRecords = await SharedAccess.find({ viewer_id: viewerId }).populate('owner_id');
+    return accessRecords.map(sa => {
+      if (!sa.owner_id) return null;
+      return {
+        ...sa.owner_id.toObject(),
+        id: sa.owner_id._id,
+        access_id: sa._id,
+        granted_at: sa.created_at
+      };
+    }).filter(Boolean);
+  },
+
+  getSharedByUser: async (ownerId) => {
+    const accessRecords = await SharedAccess.find({ owner_id: ownerId }).populate('viewer_id');
+    return accessRecords.map(sa => {
+      if (!sa.viewer_id) return null;
+      return {
+        ...sa.viewer_id.toObject(),
+        id: sa.viewer_id._id,
+        access_id: sa._id,
+        granted_at: sa.created_at
+      };
+    }).filter(Boolean);
+  },
+
+  revokeSharedAccess: async (ownerId, viewerId) => {
+    const result = await SharedAccess.deleteOne({
+      owner_id: ownerId,
+      viewer_id: viewerId
+    });
+    return result.deletedCount > 0;
   },
 
   // Meal entry operations
-  createMealEntry: (userId, date, mealType, foodDescription, drinks) => {
-    const meal = {
-      id: db.nextMealId++,
+  createMealEntry: async (userId, date, mealType, foodDescription, drinks) => {
+    const meal = new MealEntry({
       user_id: userId,
       date,
       meal_type: mealType,
       food_description: foodDescription || '',
       drinks: Array.isArray(drinks) ? drinks : [],
-      had_water: Array.isArray(drinks) ? (drinks.includes('Water') ? 1 : 0) : 0, // Keep for backwards compatibility
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    db.mealEntries.push(meal);
-    saveDb();
+      had_water: Array.isArray(drinks) ? (drinks.includes('Water') ? 1 : 0) : 0
+    });
+    await meal.save();
     return meal;
   },
 
-  updateMealEntry: (id, foodDescription, drinks) => {
-    const meal = db.mealEntries.find(m => m.id === id);
-    if (meal) {
-      meal.food_description = foodDescription || '';
-      meal.drinks = Array.isArray(drinks) ? drinks : [];
-      meal.had_water = Array.isArray(drinks) ? (drinks.includes('Water') ? 1 : 0) : 0; // Keep for backwards compatibility
-      meal.updated_at = new Date().toISOString();
-      saveDb();
-    }
-    return meal;
-  },
-
-  getMealEntry: (userId, date, mealType) => {
-    return db.mealEntries.find(
-      m => m.user_id === userId && m.date === date && m.meal_type === mealType
+  updateMealEntry: async (id, foodDescription, drinks) => {
+    const meal = await MealEntry.findByIdAndUpdate(
+      id,
+      {
+        food_description: foodDescription || '',
+        drinks: Array.isArray(drinks) ? drinks : [],
+        had_water: Array.isArray(drinks) ? (drinks.includes('Water') ? 1 : 0) : 0,
+        updated_at: new Date()
+      },
+      { new: true }
     );
+    return meal;
   },
 
-  getMealsByDate: (userId, date) => {
-    return db.mealEntries.filter(
-      m => m.user_id === userId && m.date === date
-    ).sort((a, b) => {
+  getMealEntry: async (userId, date, mealType) => {
+    return await MealEntry.findOne({
+      user_id: userId,
+      date,
+      meal_type: mealType
+    });
+  },
+
+  getMealsByDate: async (userId, date) => {
+    const meals = await MealEntry.find({
+      user_id: userId,
+      date
+    });
+    
+    meals.sort((a, b) => {
       const order = { breakfast: 0, lunch: 1, dinner: 2, Breakfast: 0, Lunch: 1, Dinner: 2 };
       return (order[a.meal_type] || 0) - (order[b.meal_type] || 0);
     });
+    
+    return meals;
   },
 
-  getMealsByUser: (userId, limit = 30) => {
-    return db.mealEntries
-      .filter(m => m.user_id === userId)
-      .sort((a, b) => {
-        const dateCompare = b.date.localeCompare(a.date);
-        if (dateCompare !== 0) return dateCompare;
-        const order = { breakfast: 0, lunch: 1, dinner: 2 };
-        return order[a.meal_type] - order[b.meal_type];
-      })
-      .slice(0, limit);
+  getMealsByUser: async (userId, limit = 30) => {
+    const meals = await MealEntry.find({ user_id: userId })
+      .sort({ date: -1, meal_type: 1 })
+      .limit(limit);
+    
+    return meals;
   },
 
-  deleteMealEntry: (mealId, userId) => {
-    const index = db.mealEntries.findIndex(m => m.id === mealId && m.user_id === userId);
-    if (index !== -1) {
-      db.mealEntries.splice(index, 1);
-      saveDb();
-      return true;
-    }
-    return false;
+  deleteMealEntry: async (mealId, userId) => {
+    const result = await MealEntry.deleteOne({
+      _id: mealId,
+      user_id: userId
+    });
+    return result.deletedCount > 0;
   },
 
   // Security questions operations
-  setSecurityQuestions: (userId, questions) => {
+  setSecurityQuestions: async (userId, questions) => {
     // Remove existing questions for this user
-    db.securityQuestions = db.securityQuestions.filter(sq => sq.user_id !== userId);
+    await SecurityQuestion.deleteMany({ user_id: userId });
     
     // Add new questions
-    questions.forEach(q => {
-      db.securityQuestions.push({
-        id: db.nextSecurityId++,
-        user_id: userId,
-        question: q.question,
-        answer: q.answer.toLowerCase().trim(),
-        created_at: new Date().toISOString()
-      });
-    });
-    saveDb();
+    const securityQuestions = questions.map(q => ({
+      user_id: userId,
+      question: q.question,
+      answer: q.answer.toLowerCase().trim()
+    }));
+    
+    await SecurityQuestion.insertMany(securityQuestions);
   },
 
-  getSecurityQuestions: (userId) => {
-    return db.securityQuestions
-      .filter(sq => sq.user_id === userId)
-      .map(sq => ({ question: sq.question, id: sq.id }));
+  getSecurityQuestions: async (userId) => {
+    const questions = await SecurityQuestion.find({ user_id: userId });
+    return questions.map(sq => ({ question: sq.question, id: sq._id }));
   },
 
-  verifySecurityAnswers: (userId, answers) => {
-    const userQuestions = db.securityQuestions.filter(sq => sq.user_id === userId);
+  verifySecurityAnswers: async (userId, answers) => {
+    const userQuestions = await SecurityQuestion.find({ user_id: userId });
     
     if (userQuestions.length === 0) return false;
     
     return userQuestions.every(sq => {
-      const providedAnswer = answers[sq.id];
+      const providedAnswer = answers[sq._id.toString()];
       return providedAnswer && providedAnswer.toLowerCase().trim() === sq.answer;
     });
   },
 
-  verifyPassword: (userId, password) => {
-    const user = db.users.find(u => u.id === userId);
+  verifyPassword: async (userId, password) => {
+    const user = await User.findById(userId);
     return user ? user.password : null;
   },
 
-  deleteUser: (userId) => {
+  deleteUser: async (userId) => {
     // Remove user
-    const userIndex = db.users.findIndex(u => u.id === userId);
-    if (userIndex === -1) return false;
-    
-    db.users.splice(userIndex, 1);
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) return false;
     
     // Remove all shared access records (both as owner and viewer)
-    db.sharedAccess = db.sharedAccess.filter(
-      sa => sa.owner_id !== userId && sa.viewer_id !== userId
-    );
+    await SharedAccess.deleteMany({
+      $or: [{ owner_id: userId }, { viewer_id: userId }]
+    });
     
     // Remove all meal entries
-    db.mealEntries = db.mealEntries.filter(
-      me => me.user_id !== userId
-    );
+    await MealEntry.deleteMany({ user_id: userId });
     
     // Remove all security questions
-    db.securityQuestions = db.securityQuestions.filter(
-      sq => sq.user_id !== userId
-    );
+    await SecurityQuestion.deleteMany({ user_id: userId });
     
-    saveDb();
     return true;
   },
 
   // Admin functions
-  getAllUsers: () => {
-    return db.users.map(u => ({
-      id: u.id,
+  getAllUsers: async () => {
+    const users = await User.find({});
+    return users.map(u => ({
+      id: u._id,
       username: u.username,
       display_name: u.display_name,
       created_at: u.created_at,
@@ -330,47 +300,45 @@ const database = {
     }));
   },
 
-  getAnalytics: () => {
+  getAnalytics: async () => {
     const now = new Date();
     const today = now.toISOString().split('T')[0];
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-    const totalUsers = db.users.length;
-    const totalMeals = db.mealEntries.length;
-    const todayMeals = db.mealEntries.filter(m => m.date === today).length;
-    const weekMeals = db.mealEntries.filter(m => m.date >= weekAgo).length;
-    const sharedAccess = db.sharedAccess.length;
+    const totalUsers = await User.countDocuments();
+    const totalMeals = await MealEntry.countDocuments();
+    const todayMeals = await MealEntry.countDocuments({ date: today });
+    const weekMeals = await MealEntry.countDocuments({ date: { $gte: weekAgo } });
+    const sharedAccessCount = await SharedAccess.countDocuments();
 
-    const breakfastCount = db.mealEntries.filter(m => m.meal_type.toLowerCase() === 'breakfast').length;
-    const lunchCount = db.mealEntries.filter(m => m.meal_type.toLowerCase() === 'lunch').length;
-    const dinnerCount = db.mealEntries.filter(m => m.meal_type.toLowerCase() === 'dinner').length;
+    const breakfastCount = await MealEntry.countDocuments({ 
+      meal_type: { $in: ['breakfast', 'Breakfast'] } 
+    });
+    const lunchCount = await MealEntry.countDocuments({ 
+      meal_type: { $in: ['lunch', 'Lunch'] } 
+    });
+    const dinnerCount = await MealEntry.countDocuments({ 
+      meal_type: { $in: ['dinner', 'Dinner'] } 
+    });
 
-    const waterCount = db.mealEntries.filter(m => 
-      (m.drinks && m.drinks.includes('Water')) || m.had_water
-    ).length;
-    const coffeeCount = db.mealEntries.filter(m => 
-      m.drinks && m.drinks.includes('Coffee')
-    ).length;
-    const juiceCount = db.mealEntries.filter(m => 
-      m.drinks && m.drinks.includes('Juice')
-    ).length;
+    const waterCount = await MealEntry.countDocuments({ drinks: 'Water' });
+    const coffeeCount = await MealEntry.countDocuments({ drinks: 'Coffee' });
+    const juiceCount = await MealEntry.countDocuments({ drinks: 'Juice' });
 
     // Calculate active users (users who logged meals today)
-    const activeToday = new Set(
-      db.mealEntries.filter(m => m.date === today).map(m => m.user_id)
-    ).size;
+    const todayMealsDistinct = await MealEntry.distinct('user_id', { date: today });
+    const activeToday = todayMealsDistinct.length;
 
     // Calculate active users in the past week
-    const activeWeek = new Set(
-      db.mealEntries.filter(m => m.date >= weekAgo).map(m => m.user_id)
-    ).size;
+    const weekMealsDistinct = await MealEntry.distinct('user_id', { date: { $gte: weekAgo } });
+    const activeWeek = weekMealsDistinct.length;
 
     return {
       totalUsers,
       totalMeals,
       todayMeals,
       weekMeals,
-      sharedAccess,
+      sharedAccess: sharedAccessCount,
       avgMealsPerUser: totalUsers > 0 ? totalMeals / totalUsers : 0,
       breakfastCount,
       lunchCount,
@@ -384,43 +352,48 @@ const database = {
     };
   },
 
-  updateUserPassword: (userId, hashedPassword) => {
-    const user = db.users.find(u => u.id === userId);
-    if (user) {
-      user.password = hashedPassword;
-      saveDb();
-      return true;
-    }
-    return false;
+  updateUserPassword: async (userId, hashedPassword) => {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { password: hashedPassword },
+      { new: true }
+    );
+    return !!user;
   },
 
-  addLog: (level, action, userId, username, details = null) => {
-    const log = {
-      id: db.nextLogId++,
-      timestamp: new Date().toISOString(),
-      level, // 'info', 'warning', 'error', 'security'
-      action, // e.g., 'login', 'logout', 'meal_created', 'password_reset'
+  addLog: async (level, action, userId, username, details = null) => {
+    const log = new Log({
+      level,
+      action,
       userId,
       username,
       details
-    };
-    db.logs.push(log);
+    });
+    await log.save();
     
     // Keep only last 500 logs to prevent bloat
-    if (db.logs.length > 500) {
-      db.logs = db.logs.slice(-500);
+    const logCount = await Log.countDocuments();
+    if (logCount > 500) {
+      const oldestLogs = await Log.find().sort({ timestamp: 1 }).limit(logCount - 500);
+      const oldestIds = oldestLogs.map(l => l._id);
+      await Log.deleteMany({ _id: { $in: oldestIds } });
     }
     
-    saveDb();
     return log;
   },
 
-  getLogs: (limit = 100) => {
+  getLogs: async (limit = 100) => {
     // Return logs in reverse chronological order
-    return db.logs.slice(-limit).reverse();
+    return await Log.find().sort({ timestamp: -1 }).limit(limit);
+  },
+
+  // Helper function to save database (for compatibility)
+  saveDatabase: () => {
+    // No-op for MongoDB (auto-saves)
+    return Promise.resolve();
   }
 };
 
-console.log('Database initialized successfully');
+console.log('Database module loaded successfully');
 
 module.exports = database;

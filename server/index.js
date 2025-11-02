@@ -43,27 +43,27 @@ app.post('/api/register', async (req, res) => {
     }
 
     // Check if username already exists
-    const existing = db.getUserByUsername(username);
+    const existing = await db.getUserByUsername(username);
     if (existing) {
       return res.status(400).json({ error: 'Username already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = db.createUser(username, hashedPassword, displayName);
+    const user = await db.createUser(username, hashedPassword, displayName);
 
     // Make first user an admin automatically
-    const allUsers = db.getAllUsers();
+    const allUsers = await db.getAllUsers();
     if (allUsers.length === 1) {
       user.is_admin = true;
-      db.saveDatabase();
+      await db.saveDatabase();
       console.log(`First user ${user.username} promoted to admin`);
     }
 
-    db.addLog('info', 'user_registered', user.id, user.username, { displayName });
+    await db.addLog('info', 'user_registered', user._id, user.username, { displayName });
 
     res.status(201).json({
       message: 'User created successfully',
-      userId: user.id
+      userId: user._id
     });
   } catch (error) {
     console.error(error);
@@ -76,7 +76,7 @@ app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    const user = db.getUserByUsername(username);
+    const user = await db.getUserByUsername(username);
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -85,22 +85,22 @@ app.post('/api/login', async (req, res) => {
     const validPassword = await bcrypt.compare(password, user.password);
 
     if (!validPassword) {
-      db.addLog('security', 'login_failed', user.id, user.username, { reason: 'Invalid password' });
+      await db.addLog('security', 'login_failed', user._id, user.username, { reason: 'Invalid password' });
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     const token = jwt.sign(
-      { id: user.id, username: user.username, isAdmin: user.is_admin || false },
+      { id: user._id, username: user.username, isAdmin: user.is_admin || false },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    db.addLog('info', 'login_success', user.id, user.username);
+    await db.addLog('info', 'login_success', user._id, user.username);
 
     res.json({
       token,
       user: {
-        id: user.id,
+        id: user._id,
         username: user.username,
         displayName: user.display_name,
         darkMode: user.dark_mode || false,
@@ -116,7 +116,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Add or update meal entry
-app.post('/api/meals', authenticateToken, (req, res) => {
+app.post('/api/meals', authenticateToken, async (req, res) => {
   try {
     const { date, mealType, foodDescription, hadWater, drinks } = req.body;
     const userId = req.user.id;
@@ -129,16 +129,16 @@ app.post('/api/meals', authenticateToken, (req, res) => {
     const drinksData = drinks || (hadWater ? ['Water'] : []);
 
     // Check if entry exists for this user, date, and meal type
-    const existing = db.getMealEntry(userId, date, mealType);
+    const existing = await db.getMealEntry(userId, date, mealType);
 
     if (existing) {
       // Update existing entry
-      const updated = db.updateMealEntry(existing.id, foodDescription, drinksData);
-      res.json({ message: 'Meal updated successfully', id: updated.id });
+      const updated = await db.updateMealEntry(existing._id, foodDescription, drinksData);
+      res.json({ message: 'Meal updated successfully', id: updated._id });
     } else {
       // Insert new entry
-      const meal = db.createMealEntry(userId, date, mealType, foodDescription, drinksData);
-      res.status(201).json({ message: 'Meal added successfully', id: meal.id });
+      const meal = await db.createMealEntry(userId, date, mealType, foodDescription, drinksData);
+      res.status(201).json({ message: 'Meal added successfully', id: meal._id });
     }
   } catch (error) {
     console.error(error);
@@ -147,12 +147,12 @@ app.post('/api/meals', authenticateToken, (req, res) => {
 });
 
 // Get meal entries for a specific date
-app.get('/api/meals/:date', authenticateToken, (req, res) => {
+app.get('/api/meals/:date', authenticateToken, async (req, res) => {
   try {
     const { date } = req.params;
     const userId = req.user.id;
 
-    const meals = db.getMealsByDate(userId, date);
+    const meals = await db.getMealsByDate(userId, date);
 
     // Always return an array, even if empty
     res.json(Array.isArray(meals) ? meals : []);
@@ -163,12 +163,12 @@ app.get('/api/meals/:date', authenticateToken, (req, res) => {
 });
 
 // Get meal history for a user (last 30 days)
-app.get('/api/meals', authenticateToken, (req, res) => {
+app.get('/api/meals', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
     const limit = parseInt(req.query.limit) || 30;
 
-    const meals = db.getMealsByUser(userId, limit);
+    const meals = await db.getMealsByUser(userId, limit);
 
     res.json(meals);
   } catch (error) {
@@ -178,22 +178,22 @@ app.get('/api/meals', authenticateToken, (req, res) => {
 });
 
 // Grant access to another user
-app.post('/api/share-access', authenticateToken, (req, res) => {
+app.post('/api/share-access', authenticateToken, async (req, res) => {
   try {
     const { viewerUsername } = req.body;
     const ownerId = req.user.id;
 
-    const viewer = db.getUserByUsername(viewerUsername);
+    const viewer = await db.getUserByUsername(viewerUsername);
 
     if (!viewer) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    db.createSharedAccess(ownerId, viewer.id);
+    await db.createSharedAccess(ownerId, viewer._id);
 
-    db.addLog('info', 'access_granted', ownerId, req.user.username, {
+    await db.addLog('info', 'access_granted', ownerId, req.user.username, {
       grantedTo: viewer.username,
-      grantedToId: viewer.id
+      grantedToId: viewer._id
     });
 
     res.json({ message: 'Access granted successfully' });
@@ -204,10 +204,10 @@ app.post('/api/share-access', authenticateToken, (req, res) => {
 });
 
 // Get list of users who have shared access with you
-app.get('/api/shared-with-me', authenticateToken, (req, res) => {
+app.get('/api/shared-with-me', authenticateToken, async (req, res) => {
   try {
     const viewerId = req.user.id;
-    const users = db.getSharedWithUser(viewerId);
+    const users = await db.getSharedWithUser(viewerId);
 
     res.json(users);
   } catch (error) {
@@ -217,10 +217,10 @@ app.get('/api/shared-with-me', authenticateToken, (req, res) => {
 });
 
 // Get list of users you've granted access to
-app.get('/api/shared-by-me', authenticateToken, (req, res) => {
+app.get('/api/shared-by-me', authenticateToken, async (req, res) => {
   try {
     const ownerId = req.user.id;
-    const users = db.getSharedByUser(ownerId);
+    const users = await db.getSharedByUser(ownerId);
 
     res.json(users);
   } catch (error) {
@@ -230,23 +230,23 @@ app.get('/api/shared-by-me', authenticateToken, (req, res) => {
 });
 
 // Revoke access from a user
-app.delete('/api/share-access/:username', authenticateToken, (req, res) => {
+app.delete('/api/share-access/:username', authenticateToken, async (req, res) => {
   try {
     const ownerId = req.user.id;
     const viewerUsername = req.params.username;
 
-    const viewer = db.getUserByUsername(viewerUsername);
+    const viewer = await db.getUserByUsername(viewerUsername);
 
     if (!viewer) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const revoked = db.revokeSharedAccess(ownerId, viewer.id);
+    const revoked = await db.revokeSharedAccess(ownerId, viewer._id);
 
     if (revoked) {
-      db.addLog('info', 'access_revoked', ownerId, req.user.username, {
+      await db.addLog('info', 'access_revoked', ownerId, req.user.username, {
         revokedFrom: viewer.username,
-        revokedFromId: viewer.id
+        revokedFromId: viewer._id
       });
       res.json({ message: 'Access revoked successfully' });
     } else {
@@ -259,20 +259,20 @@ app.delete('/api/share-access/:username', authenticateToken, (req, res) => {
 });
 
 // Get meal entries for a user you have access to
-app.get('/api/meals/user/:userId', authenticateToken, (req, res) => {
+app.get('/api/meals/user/:userId', authenticateToken, async (req, res) => {
   try {
     const viewerId = req.user.id;
-    const targetUserId = parseInt(req.params.userId);
+    const targetUserId = req.params.userId;
 
     // Check if viewer has access
-    const hasAccess = db.getSharedAccess(targetUserId, viewerId);
+    const hasAccess = await db.getSharedAccess(targetUserId, viewerId);
 
     if (!hasAccess && viewerId !== targetUserId) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
     const limit = parseInt(req.query.limit) || 30;
-    const meals = db.getMealsByUser(targetUserId, limit);
+    const meals = await db.getMealsByUser(targetUserId, limit);
 
     res.json(meals);
   } catch (error) {
@@ -282,12 +282,12 @@ app.get('/api/meals/user/:userId', authenticateToken, (req, res) => {
 });
 
 // Delete meal entry
-app.delete('/api/meals/:mealId', authenticateToken, (req, res) => {
+app.delete('/api/meals/:mealId', authenticateToken, async (req, res) => {
   try {
-    const mealId = parseInt(req.params.mealId);
+    const mealId = req.params.mealId;
     const userId = req.user.id;
 
-    const deleted = db.deleteMealEntry(mealId, userId);
+    const deleted = await db.deleteMealEntry(mealId, userId);
 
     if (deleted) {
       res.json({ message: 'Meal deleted successfully' });
@@ -301,12 +301,12 @@ app.delete('/api/meals/:mealId', authenticateToken, (req, res) => {
 });
 
 // Update user dark mode preference
-app.patch('/api/user/dark-mode', authenticateToken, (req, res) => {
+app.patch('/api/user/dark-mode', authenticateToken, async (req, res) => {
   try {
     const { darkMode } = req.body;
     const userId = req.user.id;
 
-    const user = db.updateUserDarkMode(userId, darkMode);
+    const user = await db.updateUserDarkMode(userId, darkMode);
 
     if (user) {
       res.json({ message: 'Dark mode updated', darkMode: user.dark_mode });
@@ -320,12 +320,12 @@ app.patch('/api/user/dark-mode', authenticateToken, (req, res) => {
 });
 
 // Update profile picture
-app.patch('/api/user/profile-picture', authenticateToken, (req, res) => {
+app.patch('/api/user/profile-picture', authenticateToken, async (req, res) => {
   try {
     const { profilePicture } = req.body;
     const userId = req.user.id;
 
-    const user = db.updateUserProfilePicture(userId, profilePicture);
+    const user = await db.updateUserProfilePicture(userId, profilePicture);
 
     if (user) {
       res.json({ message: 'Profile picture updated', profilePicture: user.profile_picture });
@@ -339,7 +339,7 @@ app.patch('/api/user/profile-picture', authenticateToken, (req, res) => {
 });
 
 // Update display name
-app.patch('/api/user/display-name', authenticateToken, (req, res) => {
+app.patch('/api/user/display-name', authenticateToken, async (req, res) => {
   try {
     const { displayName } = req.body;
     const userId = req.user.id;
@@ -348,7 +348,7 @@ app.patch('/api/user/display-name', authenticateToken, (req, res) => {
       return res.status(400).json({ error: 'Display name is required' });
     }
 
-    const user = db.updateUserDisplayName(userId, displayName.trim());
+    const user = await db.updateUserDisplayName(userId, displayName.trim());
 
     if (user) {
       res.json({ 
@@ -365,12 +365,12 @@ app.patch('/api/user/display-name', authenticateToken, (req, res) => {
 });
 
 // Update profile color
-app.patch('/api/user/profile-color', authenticateToken, (req, res) => {
+app.patch('/api/user/profile-color', authenticateToken, async (req, res) => {
   try {
     const { profileColor } = req.body;
     const userId = req.user.id;
 
-    const user = db.updateUserProfileColor(userId, profileColor);
+    const user = await db.updateUserProfileColor(userId, profileColor);
 
     if (user) {
       res.json({ message: 'Profile color updated' });
@@ -394,7 +394,7 @@ app.patch('/api/user/change-password', authenticateToken, async (req, res) => {
     }
 
     // Get user's current password
-    const hashedPassword = db.verifyPassword(userId);
+    const hashedPassword = await db.verifyPassword(userId);
     if (!hashedPassword) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -407,7 +407,7 @@ app.patch('/api/user/change-password', authenticateToken, async (req, res) => {
 
     // Hash and update new password
     const newHashedPassword = await bcrypt.hash(newPassword, 10);
-    db.updateUserPassword(userId, newHashedPassword);
+    await db.updateUserPassword(userId, newHashedPassword);
 
     res.json({ message: 'Password changed successfully' });
   } catch (error) {
@@ -417,12 +417,12 @@ app.patch('/api/user/change-password', authenticateToken, async (req, res) => {
 });
 
 // Verify security answers (for reset)
-app.post('/api/user/verify-security-answers', authenticateToken, (req, res) => {
+app.post('/api/user/verify-security-answers', authenticateToken, async (req, res) => {
   try {
     const { answers } = req.body;
     const userId = req.user.id;
 
-    const verified = db.verifySecurityAnswers(userId, answers);
+    const verified = await db.verifySecurityAnswers(userId, answers);
 
     res.json({ verified });
   } catch (error) {
@@ -432,7 +432,7 @@ app.post('/api/user/verify-security-answers', authenticateToken, (req, res) => {
 });
 
 // Set security questions
-app.post('/api/user/security-questions', authenticateToken, (req, res) => {
+app.post('/api/user/security-questions', authenticateToken, async (req, res) => {
   try {
     const { questions } = req.body;
     const userId = req.user.id;
@@ -441,7 +441,7 @@ app.post('/api/user/security-questions', authenticateToken, (req, res) => {
       return res.status(400).json({ error: 'At least 2 security questions required' });
     }
 
-    db.setSecurityQuestions(userId, questions);
+    await db.setSecurityQuestions(userId, questions);
     res.json({ message: 'Security questions set successfully' });
   } catch (error) {
     console.error('[SECURITY QUESTIONS] Error:', error);
@@ -450,16 +450,16 @@ app.post('/api/user/security-questions', authenticateToken, (req, res) => {
 });
 
 // Get security questions for password reset (public)
-app.get('/api/user/security-questions/:username', (req, res) => {
+app.get('/api/user/security-questions/:username', async (req, res) => {
   try {
     const { username } = req.params;
-    const user = db.getUserByUsername(username);
+    const user = await db.getUserByUsername(username);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const questions = db.getSecurityQuestions(user.id);
+    const questions = await db.getSecurityQuestions(user._id);
 
     if (questions.length === 0) {
       return res.status(404).json({ error: 'No security questions set' });
@@ -477,20 +477,20 @@ app.post('/api/user/reset-password', async (req, res) => {
   try {
     const { username, answers, newPassword } = req.body;
 
-    const user = db.getUserByUsername(username);
+    const user = await db.getUserByUsername(username);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const verified = db.verifySecurityAnswers(user.id, answers);
+    const verified = await db.verifySecurityAnswers(user._id, answers);
 
     if (!verified) {
       return res.status(401).json({ error: 'Security answers incorrect' });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    db.updateUserPassword(user.id, hashedPassword);
+    await db.updateUserPassword(user._id, hashedPassword);
 
     res.json({ message: 'Password reset successfully' });
   } catch (error) {
@@ -500,18 +500,19 @@ app.post('/api/user/reset-password', async (req, res) => {
 });
 
 // Get current user profile
-app.get('/api/user/profile', authenticateToken, (req, res) => {
+app.get('/api/user/profile', authenticateToken, async (req, res) => {
   try {
-    const user = db.getUserById(req.user.id);
+    const user = await db.getUserById(req.user.id);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const hasSecurityQuestions = db.getSecurityQuestions(user.id).length > 0;
+    const questions = await db.getSecurityQuestions(user._id);
+    const hasSecurityQuestions = questions.length > 0;
 
     res.json({
-      id: user.id,
+      id: user._id,
       username: user.username,
       displayName: user.display_name,
       darkMode: user.dark_mode || false,
@@ -526,11 +527,11 @@ app.get('/api/user/profile', authenticateToken, (req, res) => {
 });
 
 // Delete account
-app.delete('/api/user/delete-account', authenticateToken, (req, res) => {
+app.delete('/api/user/delete-account', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const success = db.deleteUser(userId);
+    const success = await db.deleteUser(userId);
 
     if (success) {
       res.json({ message: 'Account deleted successfully' });
@@ -552,9 +553,9 @@ const requireAdmin = (req, res, next) => {
 };
 
 // Admin: Get all users
-app.get('/api/admin/users', authenticateToken, requireAdmin, (req, res) => {
+app.get('/api/admin/users', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const users = db.getAllUsers();
+    const users = await db.getAllUsers();
     res.json({ users });
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -563,9 +564,9 @@ app.get('/api/admin/users', authenticateToken, requireAdmin, (req, res) => {
 });
 
 // Admin: Get analytics
-app.get('/api/admin/analytics', authenticateToken, requireAdmin, (req, res) => {
+app.get('/api/admin/analytics', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const analytics = db.getAnalytics();
+    const analytics = await db.getAnalytics();
     res.json(analytics);
   } catch (error) {
     console.error('Error fetching analytics:', error);
@@ -574,10 +575,10 @@ app.get('/api/admin/analytics', authenticateToken, requireAdmin, (req, res) => {
 });
 
 // Admin: Get security answers
-app.get('/api/admin/security-answers/:userId', authenticateToken, requireAdmin, (req, res) => {
+app.get('/api/admin/security-answers/:userId', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
-    const securityQuestions = db.getSecurityQuestionsByUserId(parseInt(userId));
+    const securityQuestions = await db.getSecurityQuestions(userId);
     res.json({ securityQuestions });
   } catch (error) {
     console.error('Error fetching security answers:', error);
@@ -589,11 +590,12 @@ app.get('/api/admin/security-answers/:userId', authenticateToken, requireAdmin, 
 app.post('/api/admin/reset-password', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { userId, newPassword } = req.body;
-    const targetUser = db.getAllUsers().find(u => u.id === parseInt(userId));
+    const allUsers = await db.getAllUsers();
+    const targetUser = allUsers.find(u => u.id === userId);
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    db.updateUserPassword(userId, hashedPassword);
+    await db.updateUserPassword(userId, hashedPassword);
     
-    db.addLog('security', 'password_reset_by_admin', parseInt(userId), targetUser?.username || 'unknown', {
+    await db.addLog('security', 'password_reset_by_admin', userId, targetUser?.username || 'unknown', {
       adminUser: req.user.username,
       adminId: req.user.id
     });
@@ -606,13 +608,14 @@ app.post('/api/admin/reset-password', authenticateToken, requireAdmin, async (re
 });
 
 // Admin: Delete user
-app.delete('/api/admin/delete-user/:userId', authenticateToken, requireAdmin, (req, res) => {
+app.delete('/api/admin/delete-user/:userId', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
-    const targetUser = db.getAllUsers().find(u => u.id === parseInt(userId));
-    const success = db.deleteUser(parseInt(userId));
+    const allUsers = await db.getAllUsers();
+    const targetUser = allUsers.find(u => u.id === userId);
+    const success = await db.deleteUser(userId);
     if (success) {
-      db.addLog('warning', 'user_deleted_by_admin', parseInt(userId), targetUser?.username || 'unknown', {
+      await db.addLog('warning', 'user_deleted_by_admin', userId, targetUser?.username || 'unknown', {
         adminUser: req.user.username,
         adminId: req.user.id
       });
@@ -627,9 +630,9 @@ app.delete('/api/admin/delete-user/:userId', authenticateToken, requireAdmin, (r
 });
 
 // Admin: Get logs
-app.get('/api/admin/logs', authenticateToken, requireAdmin, (req, res) => {
+app.get('/api/admin/logs', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const logs = db.getLogs();
+    const logs = await db.getLogs();
     res.json({ logs });
   } catch (error) {
     console.error('Error fetching logs:', error);

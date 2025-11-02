@@ -11,15 +11,21 @@
     "install-all": "npm install && cd client && npm install",
     "build": "cd client && npm install && npm run build"
   },
-  "keywords": ["meal-tracker", "health", "food-diary", "water-tracker"],
+  "keywords": [
+    "meal-tracker",
+    "health",
+    "food-diary",
+    "water-tracker"
+  ],
   "author": "Osaym Omar",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
     "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
-    "dotenv": "^16.3.1"
+    "mongoose": "^8.19.2"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

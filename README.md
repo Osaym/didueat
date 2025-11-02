@@ -25,7 +25,7 @@ A simple web app to track daily meals and water intake, with the ability to shar
 
 - **Frontend**: React 19.2.0
 - **Backend**: Node.js + Express
-- **Database**: JSON file-based storage (no setup required!)
+- **Database**: MongoDB (with Mongoose ODM)
 - **Authentication**: JWT tokens with bcrypt password hashing
 - **Styling**: Pure CSS with modern gradients and animations
 
@@ -52,11 +52,20 @@ npm run install-all
 
 ### 2. Configure Environment
 
-The `.env` file is already created. For production use, change the JWT_SECRET to a secure random string:
+Create a `.env` file in the `server` directory:
+```bash
+cd server
+cp .env.example .env
+```
+
+Edit the `.env` file and add your MongoDB connection string:
 ```
 JWT_SECRET=your-secret-key-change-this-in-production
 PORT=5000
+MONGODB_URI=mongodb://localhost:27017/didueat
 ```
+
+**For Railway deployment**: See `MONGODB_RAILWAY_SETUP.md` for complete setup instructions.
 
 ### 3. Run the Application
 
