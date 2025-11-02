@@ -39,8 +39,7 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// Add index for faster username lookups
-userSchema.index({ username: 1 });
+// Note: username index is automatically created by unique: true above
 
 // SharedAccess Schema
 const sharedAccessSchema = new mongoose.Schema({

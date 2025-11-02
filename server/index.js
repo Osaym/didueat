@@ -31,6 +31,9 @@ const db = require('./database');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy headers (required for Railway, Heroku, etc.)
+app.set('trust proxy', 1);
+
 app.use(cors());
 app.use(compression()); // Compress all HTTP responses
 app.use(express.json({ limit: '1mb' })); // Limit payload size to prevent abuse
