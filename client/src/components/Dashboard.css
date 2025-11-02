@@ -1,0 +1,292 @@
+.dashboard {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  margin-bottom: 1.5rem;
+  animation: fadeIn 0.5s ease-out;
+  transition: all 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dashboard h2 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 2rem;
+  font-size: 1.75rem;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.meal-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.meal-card {
+  padding: 1.75rem;
+  border-radius: 16px;
+  border: none;
+  transition: all 0.3s ease;
+  animation: fadeIn 0.6s ease-out;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.meal-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 0 0 0 100%;
+  transition: all 0.3s ease;
+}
+
+.meal-card:hover::after {
+  width: 80px;
+  height: 80px;
+}
+
+.meal-card.completed {
+  background: linear-gradient(135deg, #d4f1dd 0%, #a7e3b8 100%);
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.15);
+}
+
+.meal-card.completed:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(76, 175, 80, 0.25);
+}
+
+.meal-card.pending {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.meal-card.pending:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.meal-card h3 {
+  color: #667eea;
+  margin-bottom: 1.25rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  position: relative;
+  z-index: 1;
+}
+
+.food-desc {
+  color: #2d3748;
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+}
+
+.water-status {
+  padding: 0.75rem;
+  background: rgba(255,255,255,0.8);
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.drinks-status {
+  padding: 0.75rem;
+  background: rgba(255,255,255,0.8);
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.drinks-status > strong {
+  width: 100%;
+  text-align: center;
+  color: #4a5568;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.drinks-status > span:not(.drink-badge) {
+  width: 100%;
+  text-align: center;
+  color: #a0aec0;
+  font-size: 0.9rem;
+}
+
+.drinks-badges-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.drink-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.75rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.drink-badge:hover {
+  transform: translateY(-2px);
+}
+
+.timestamp {
+  color: #a0aec0;
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.not-entered {
+  color: #a0aec0;
+  font-style: italic;
+  font-size: 1.05rem;
+  text-align: center;
+  padding: 2rem 0;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    border-radius: 16px;
+  }
+
+  .dashboard h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .meal-cards {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .meal-card {
+    padding: 1.5rem;
+  }
+
+  .food-desc {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard {
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+
+  .dashboard h2 {
+    font-size: 1.2rem;
+  }
+
+  .meal-card {
+    padding: 1.25rem;
+  }
+
+  .meal-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .food-desc {
+    font-size: 0.95rem;
+  }
+}
+
+/* Dark Mode Styles */
+body.dark-mode .dashboard {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .dashboard h2 {
+  background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body.dark-mode .meal-card.completed {
+  background: linear-gradient(135deg, #1e4620 0%, #2d5a2f 100%);
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.2);
+}
+
+body.dark-mode .meal-card.pending {
+  background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .meal-card h3 {
+  color: #a78bfa;
+}
+
+body.dark-mode .food-desc {
+  color: #e2e8f0;
+}
+
+body.dark-mode .drinks-status,
+body.dark-mode .water-status {
+  background: rgba(30, 41, 59, 0.6);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+body.dark-mode .drinks-status > strong {
+  color: #cbd5e0;
+}
+
+body.dark-mode .drinks-status > span:not(.drink-badge) {
+  color: #718096;
+}
+
+body.dark-mode .drink-badge {
+  background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%);
+  box-shadow: 0 2px 8px rgba(167, 139, 250, 0.3);
+}
+
+body.dark-mode .timestamp,
+body.dark-mode .not-entered {
+  color: #718096;
+}

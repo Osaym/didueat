@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover" />
+    
+    <!-- Theme colors for browser UI - light and dark mode support -->
+    <meta name="theme-color" content="#f5f7fa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+    
+    <!-- iOS Safari specific -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <meta name="description" content="didueat - Track your daily meals and water intake. Share your food diary with loved ones." />
+    <meta name="keywords" content="meal tracker, food diary, water tracker, diet app, nutrition, health" />
+    <meta name="author" content="didueat" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="didueat - Meal & Water Tracker" />
+    <meta property="og:description" content="Track your daily meals and water intake. Share your food diary with loved ones." />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:title" content="didueat - Meal & Water Tracker" />
+    <meta property="twitter:description" content="Track your daily meals and water intake. Share your food diary with loved ones." />
+    
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+    
+    <title>didueat - Meal & Water Tracker</title>
+    
+    <!-- Apply theme immediately to prevent flash -->
+    <script>
+      (function() {
+        try {
+          var token = localStorage.getItem('token');
+          var user = JSON.parse(localStorage.getItem('user'));
+          
+          // If logged in, apply user's preference
+          if (token && user) {
+            if (user.darkMode) {
+              document.documentElement.classList.add('dark-mode');
+              document.body.classList.add('dark-mode');
+            } else {
+              document.documentElement.classList.add('light-mode');
+              document.body.classList.add('light-mode');
+            }
+          }
+          // If not logged in, default dark background stays (from CSS)
+        } catch (e) {
+          // Error: default dark background stays
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>

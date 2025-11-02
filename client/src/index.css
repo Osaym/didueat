@@ -1,0 +1,1030 @@
+body {
+  margin: 0;
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #653a91 100%);
+}
+
+/* Selection color */
+::selection {
+  background: #667eea;
+  color: white;
+}
+
+::-moz-selection {
+  background: #667eea;
+  color: white;
+}
+
+/* Focus styles for accessibility */
+*:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Cute typography improvements */
+h1, h2, h3 {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+button {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+  border-radius: 20px !important;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Improve touch targets on mobile */
+@media (max-width: 768px) {
+  button,
+  a,
+  input[type="checkbox"],
+  select {
+    min-height: 44px;
+  }
+}
+
+/* ============================================
+   DARK MODE THEME
+   Complete dark mode overrides for all components
+   ============================================ */
+
+body.dark-mode {
+  background: #0f172a !important;
+  background-image: none !important;
+  color: #e2e8f0;
+}
+
+/* Override body gradient from App.css */
+body.dark-mode {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+}
+
+/* Dark mode scrollbar */
+body.dark-mode ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background: #0f172a;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+  background: #0f172a;
+  border-radius: 10px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #4c5b7c 0%, #6b4e82 100%);
+  border-radius: 10px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5a6a8e 0%, #7a5a92 100%);
+}
+
+body.dark-mode ::-webkit-scrollbar-corner {
+  background: #0f172a;
+}
+
+/* Dark mode selection */
+body.dark-mode ::selection {
+  background: #4c5b7c;
+  color: white;
+}
+
+/* ============================================
+   CARDS & CONTAINERS
+   ============================================ */
+
+.dark-mode .login-box,
+.dark-mode .forgot-password-box,
+.dark-mode .share-section,
+.dark-mode .settings-section,
+.dark-mode .shared-users-section,
+.dark-mode .meal-entry,
+.dark-mode .dashboard {
+  background: #1e293b !important;
+  color: #e2e8f0;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid #334155;
+  border-radius: 16px !important;
+  padding: 1.75rem !important;
+}
+
+.dark-mode .granted-user-card,
+.dark-mode .shared-user-card,
+.dark-mode .history-meal-card,
+.dark-mode .meal-card,
+.dark-mode .date-group {
+  background: #1e293b !important;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  border-radius: 12px !important;
+  padding: 1.25rem !important;
+}
+
+.dark-mode .granted-user-card:hover,
+.dark-mode .shared-user-card:hover,
+.dark-mode .history-meal-card:hover {
+  background: #2d3b52 !important;
+  border-color: #475569;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================
+   HEADERS & NAVIGATION
+   ============================================ */
+
+.dark-mode .app-header {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+  border-bottom: 1px solid #475569;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .app-header h1 {
+  color: #e2e8f0 !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .nav-tabs {
+  background: #1e293b !important;
+  border-bottom: 1px solid #334155;
+  justify-content: center !important;
+}
+
+.dark-mode .nav-tabs button {
+  color: #94a3b8;
+  background: transparent;
+  border-bottom: 3px solid transparent;
+}
+
+.dark-mode .nav-tabs button:hover {
+  color: #e2e8f0;
+  background: #2d3b52;
+}
+
+.dark-mode .nav-tabs button.active {
+  color: #a78bfa;
+  background: #2d3b52;
+  border-bottom-color: #a78bfa;
+}
+
+/* ============================================
+   TEXT & TYPOGRAPHY
+   ============================================ */
+
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode h4 {
+  color: #f8fafc !important;
+  font-weight: 600;
+}
+
+.dark-mode p,
+.dark-mode .info-text,
+.dark-mode .info-text-small,
+.dark-mode .toggle-text,
+.dark-mode span {
+  color: #e2e8f0 !important;
+  line-height: 1.6;
+}
+
+.dark-mode .user-info h3,
+.dark-mode .meal-type-badge {
+  color: #f8fafc !important;
+  font-weight: 600;
+}
+
+.dark-mode .user-info p,
+.dark-mode .granted-date,
+.dark-mode .meal-description,
+.dark-mode .meal-time,
+.dark-mode .date-header {
+  color: #cbd5e1 !important;
+  font-size: 0.95rem;
+}
+
+.dark-mode .no-data {
+  color: #94a3b8 !important;
+  font-size: 1rem;
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+
+.dark-mode input,
+.dark-mode select,
+.dark-mode textarea {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+  border: 2px solid #334155 !important;
+  border-radius: 10px !important;
+  padding: 12px 14px !important;
+}
+
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
+  color: #64748b !important;
+}
+
+.dark-mode input:focus,
+.dark-mode select:focus,
+.dark-mode textarea:focus {
+  background: #1e293b !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+}
+
+.dark-mode input:disabled,
+.dark-mode select:disabled,
+.dark-mode textarea:disabled,
+.dark-mode button:disabled {
+  background: #1e293b !important;
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: #64748b !important;
+}
+
+.dark-mode label {
+  color: #cbd5e1 !important;
+}
+
+/* Checkboxes */
+.dark-mode input[type="checkbox"] {
+  background: #0f172a !important;
+  border: 2px solid #475569 !important;
+}
+
+.dark-mode input[type="checkbox"]:checked {
+  background: #6366f1 !important;
+  border-color: #6366f1 !important;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.dark-mode .primary-btn,
+.dark-mode .save-btn,
+.dark-mode .grant-btn,
+.dark-mode button[type="submit"] {
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  color: white;
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+  border: none;
+  border-radius: 10px !important;
+  padding: 12px 20px !important;
+}
+
+.dark-mode .primary-btn:hover,
+.dark-mode .save-btn:hover,
+.dark-mode .grant-btn:hover,
+.dark-mode button[type="submit"]:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.4);
+}
+
+.dark-mode .logout-btn {
+  background: #dc2626 !important;
+  color: white !important;
+  border: 2px solid #dc2626 !important;
+  border-radius: 10px !important;
+  padding: 10px 18px !important;
+}
+
+.dark-mode .logout-btn:hover {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: white !important;
+}
+
+.dark-mode .back-btn,
+.dark-mode .back-link {
+  background: transparent;
+  color: #94a3b8;
+  border: 2px solid #475569;
+  border-radius: 10px !important;
+  padding: 10px 18px !important;
+}
+
+.dark-mode .back-btn:hover,
+.dark-mode .back-link:hover {
+  background: #2d3b52;
+  color: #e2e8f0;
+  border-color: #6366f1;
+}
+
+.dark-mode .revoke-btn {
+  background: #dc2626 !important;
+  border: none;
+  flex-shrink: 0;
+  margin-left: auto;
+  color: white !important;
+}
+
+.dark-mode .revoke-btn:hover {
+  background: #b91c1c !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4) !important;
+}
+
+.dark-mode .view-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+}
+
+.dark-mode .link-btn,
+.dark-mode .forgot-password-link {
+  color: #a78bfa !important;
+}
+
+.dark-mode .link-btn:hover,
+.dark-mode .forgot-password-link:hover {
+  color: #c4b5fd !important;
+}
+
+/* ============================================
+   BADGES & INDICATORS
+   ============================================ */
+
+.dark-mode .meal-type-badge {
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  color: white;
+}
+
+.dark-mode .water-badge {
+  filter: brightness(1.2);
+}
+
+/* Completed meal cards in dark mode - darker green */
+.dark-mode .meal-card.completed {
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 100%) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+}
+
+.dark-mode .meal-card.completed:hover {
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.4) !important;
+}
+
+.dark-mode .meal-card.completed h3,
+.dark-mode .meal-card.completed .food-desc {
+  color: #a7f3d0 !important;
+}
+
+.dark-mode .meal-card.pending {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode .water-status {
+  background: rgba(15, 23, 42, 0.7) !important;
+  color: #e2e8f0 !important;
+}
+
+/* ============================================
+   MESSAGES & ALERTS
+   ============================================ */
+
+.dark-mode .message.success,
+.dark-mode .success-message {
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+  color: #a7f3d0 !important;
+  border: 1px solid #10b981;
+  border-radius: 10px !important;
+  padding: 14px 18px !important;
+  font-weight: 500;
+}
+
+.dark-mode .message.error,
+.dark-mode .error-message {
+  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%) !important;
+  color: #fecaca !important;
+  border: 1px solid #dc2626 !important;
+  border-radius: 10px !important;
+  padding: 14px 18px !important;
+  font-weight: 500;
+}
+
+/* Override all error backgrounds */
+.dark-mode div[class*="error"],
+.dark-mode .error {
+  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%) !important;
+  color: #fecaca !important;
+}
+
+/* ============================================
+   CONTEXT MENU
+   ============================================ */
+
+.dark-mode .context-menu {
+  background: #1e293b;
+  border: 1px solid #475569;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  border-radius: 10px !important;
+  padding: 6px !important;
+}
+
+.dark-mode .context-menu-item {
+  color: #e2e8f0;
+  border-radius: 6px !important;
+  padding: 10px 16px !important;
+}
+
+.dark-mode .context-menu-item:hover {
+  background: #2d3b52;
+  color: white;
+}
+
+.dark-mode .context-menu-item.delete {
+  color: #f87171;
+}
+
+.dark-mode .context-menu-item.delete:hover {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+/* ============================================
+   PROFILE & AVATARS
+   ============================================ */
+
+.dark-mode .user-avatar {
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.dark-mode .profile-img-large,
+.dark-mode .profile-placeholder-large,
+.dark-mode .profile-emoji-large {
+  border: 3px solid #475569;
+}
+
+.dark-mode .name-form {
+  max-width: 600px;
+}
+
+.dark-mode .name-form input {
+  flex: 1;
+}
+
+/* ============================================
+   SETTINGS SPECIFIC
+   ============================================ */
+
+.dark-mode .toggle-switch input:checked + .slider {
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+}
+
+.dark-mode .toggle-switch .slider {
+  background: #475569;
+}
+
+.dark-mode .security-question-group {
+  background: #0f172a;
+  border: 1px solid #334155;
+}
+
+.dark-mode .current-picture {
+  border: 3px solid #475569;
+}
+
+/* ============================================
+   LOGIN & AUTH PAGES
+   ============================================ */
+
+.dark-mode .login-container,
+.dark-mode .forgot-password-container {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+}
+
+/* ============================================
+   MISC COMPONENTS
+   ============================================ */
+
+.dark-mode .main-content {
+  background: #0f172a;
+}
+
+.dark-mode hr {
+  border-color: #334155;
+}
+
+/* ============================================
+   APP LAYOUT & STRUCTURE
+   ============================================ */
+
+.dark-mode .App {
+  background: #0f172a !important;
+}
+
+.dark-mode .main-content {
+  background: #0f172a !important;
+  padding: 1.5rem;
+}
+
+/* ============================================
+   ADDITIONAL COMPONENT OVERRIDES
+   ============================================ */
+
+/* Dashboard */
+.dark-mode .dashboard {
+  background: #1e293b !important;
+}
+
+.dark-mode .meal-status {
+  background: #0f172a !important;
+}
+
+/* Meal Entry */
+.dark-mode .meal-entry {
+  background: #1e293b !important;
+}
+
+.dark-mode .meal-form {
+  background: transparent !important;
+}
+
+/* History */
+.dark-mode .history {
+  background: transparent !important;
+}
+
+.dark-mode .history-list {
+  background: transparent !important;
+}
+
+.dark-mode .meals-grid {
+  background: transparent !important;
+}
+
+/* Settings */
+.dark-mode .settings {
+  background: transparent !important;
+}
+
+.dark-mode .profile-picture-section,
+.dark-mode .security-form,
+.dark-mode .profile-form {
+  background: transparent !important;
+}
+
+/* Shared View */
+.dark-mode .shared-view {
+  background: transparent !important;
+}
+
+.dark-mode .granted-users-list,
+.dark-mode .shared-users-list {
+  background: transparent !important;
+}
+
+.dark-mode .share-form {
+  background: transparent !important;
+}
+
+/* ============================================
+   SPECIFIC LIGHT BACKGROUNDS TO OVERRIDE
+   ============================================ */
+
+.dark-mode div[style*="background: white"],
+.dark-mode div[style*="background: #fff"],
+.dark-mode div[style*="background:#fff"] {
+  background: #1e293b !important;
+}
+
+/* Override any remaining light grays */
+.dark-mode *[style*="background: #f5f7fa"],
+.dark-mode *[style*="background: #f9f9f9"],
+.dark-mode *[style*="background: #fafafa"],
+.dark-mode *[style*="background: #f0f0f0"],
+.dark-mode *[style*="background: #f5f5f5"] {
+  background: #0f172a !important;
+}
+
+/* User info containers */
+.dark-mode .user-info {
+  color: #e2e8f0 !important;
+}
+
+/* Water checkboxes container */
+.dark-mode .checkbox-container,
+.dark-mode .meal-checkboxes {
+  background: transparent !important;
+}
+
+/* File input styling */
+.dark-mode .file-input,
+.dark-mode input[type="file"] {
+  color: #e2e8f0 !important;
+}
+
+.dark-mode input[type="file"]::file-selector-button {
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.dark-mode input[type="file"]::file-selector-button:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+}
+
+/* ============================================
+   CATCH-ALL OVERRIDES
+   ============================================ */
+
+/* Force override any remaining white backgrounds */
+.dark-mode [style*="background: white"],
+.dark-mode [style*="background:white"],
+.dark-mode [style*="background: #ffffff"],
+.dark-mode [style*="background:#ffffff"],
+.dark-mode [style*="background: #fff"],
+.dark-mode [style*="background:#fff"] {
+  background: #1e293b !important;
+}
+
+/* Ensure no element retains light background */
+.dark-mode div:not([class*="gradient"]):not([class*="badge"]):not([style*="linear-gradient"]) {
+  border-color: #334155;
+}
+
+/* Additional light background overrides */
+.dark-mode .meal-status,
+.dark-mode .checkbox-label,
+.dark-mode .meal-info,
+.dark-mode .status-item {
+  background: transparent !important;
+}
+
+/* ============================================
+   SPACING & LAYOUT IMPROVEMENTS
+   ============================================ */
+
+.dark-mode .settings-section,
+.dark-mode .share-section,
+.dark-mode .shared-users-section {
+  margin-bottom: 1.5rem;
+}
+
+.dark-mode .meal-entry form,
+.dark-mode .share-form,
+.dark-mode .security-form {
+  gap: 1rem;
+}
+
+/* Better spacing for form groups */
+.dark-mode .security-question-group,
+.dark-mode .question-group {
+  padding: 1rem !important;
+  margin-bottom: 1rem;
+  border-radius: 10px !important;
+}
+
+/* Improve button spacing */
+.dark-mode button {
+  margin-top: 0.5rem;
+}
+
+/* Card grid spacing */
+.dark-mode .meals-grid,
+.dark-mode .granted-users-list,
+.dark-mode .shared-users-list {
+  gap: 1rem !important;
+}
+
+/* ============================================
+   SMOOTH ANIMATIONS & TRANSITIONS
+   ============================================ */
+
+/* Ensure smooth transitions */
+.dark-mode * {
+  transition: background-color 0.3s ease, 
+              border-color 0.3s ease, 
+              color 0.3s ease,
+              box-shadow 0.3s ease,
+              transform 0.2s ease;
+}
+
+/* Smooth fade in for dark mode content */
+.dark-mode .dashboard,
+.dark-mode .history,
+.dark-mode .settings,
+.dark-mode .shared-view {
+  animation: fadeInDark 0.4s ease-out;
+}
+
+@keyframes fadeInDark {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+  background-color: #1a1a2e;
+  color: #eee;
+}
+
+body.dark-mode .app-header {
+  background: linear-gradient(135deg, #4a5f8a 0%, #5a3f7a 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .nav-tabs button {
+  background: #2a2a3e;
+  color: #ccc;
+  border-bottom-color: #3a3a4e;
+}
+
+body.dark-mode .nav-tabs button:hover {
+  background: #3a3a4e;
+  color: #fff;
+}
+
+body.dark-mode .nav-tabs button.active {
+  background: linear-gradient(135deg, #4a5f8a 0%, #5a3f7a 100%);
+  color: white;
+  border-bottom: 3px solid #7b8ecc;
+}
+
+body.dark-mode .main-content {
+  background: #1a1a2e;
+}
+
+body.dark-mode .dashboard,
+body.dark-mode .meal-entry,
+body.dark-mode .history,
+body.dark-mode .shared-view,
+body.dark-mode .settings-container {
+  background: #2a2a3e;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .meal-card,
+body.dark-mode .day-group,
+body.dark-mode .shared-user-card,
+body.dark-mode .setting-section {
+  background: #3a3a4e;
+  color: #eee;
+  border-color: #4a4a5e;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background: #2a2a3e;
+  color: #eee;
+  border-color: #4a4a5e;
+}
+
+body.dark-mode input:focus,
+body.dark-mode select:focus,
+body.dark-mode textarea:focus {
+  border-color: #7b8ecc;
+  box-shadow: 0 0 0 3px rgba(123, 142, 204, 0.2);
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4 {
+  color: #eee;
+}
+
+body.dark-mode .checkbox-label {
+  color: #ccc;
+}
+
+body.dark-mode .drink-checkbox {
+  background: #2a2a3e;
+  border-color: #4a4a5e;
+}
+
+body.dark-mode .drink-checkbox:hover {
+  background: #3a3a4e;
+  border-color: #6366f1;
+}
+
+body.dark-mode .drink-label {
+  color: #eee;
+}
+
+body.dark-mode .drink-badge {
+  background: #6366f1 !important;
+  color: white !important;
+}
+
+body.dark-mode .drinks-status {
+  background: rgba(15, 23, 42, 0.5) !important;
+  color: #cbd5e1 !important;
+}
+
+body.dark-mode .drinks-status strong {
+  color: #e0e7ff !important;
+}
+
+body.dark-mode .meal-type {
+  color: #aaa;
+}
+
+body.dark-mode .date-header {
+  color: #bbb;
+}
+
+body.dark-mode .info-text,
+body.dark-mode .user-list li,
+body.dark-mode .no-meals,
+body.dark-mode .no-shared {
+  color: #bbb;
+}
+
+body.dark-mode .logout-btn,
+body.dark-mode .secondary-btn {
+  background: #3a3a4e;
+  color: #eee;
+}
+
+body.dark-mode .logout-btn:hover,
+body.dark-mode .secondary-btn:hover {
+  background: #4a4a5e;
+}
+
+body.dark-mode .context-menu {
+  background: #2a2a3e;
+  border-color: #4a4a5e;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .context-menu-item {
+  color: #eee;
+}
+
+body.dark-mode .context-menu-item:hover {
+  background: #3a3a4e;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+  background: #2a2a3e;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #4a5f8a 0%, #5a3f7a 100%);
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5a6f9a 0%, #6a4f8a 100%);
+}
+
+/* Admin Panel Dark Mode */
+body.dark-mode .admin-panel {
+  background: #2a2a3e !important;
+  color: #eee !important;
+}
+
+body.dark-mode .admin-panel h1,
+body.dark-mode .admin-panel h2,
+body.dark-mode .admin-panel h3 {
+  color: #e0e7ff !important;
+}
+
+body.dark-mode .admin-tabs {
+  border-bottom-color: #475569 !important;
+}
+
+body.dark-mode .admin-tabs button {
+  color: #cbd5e1 !important;
+}
+
+body.dark-mode .admin-tabs button:hover {
+  background: rgba(99, 102, 241, 0.1) !important;
+}
+
+body.dark-mode .admin-tabs button.active {
+  color: #a78bfa !important;
+  border-bottom-color: #a78bfa !important;
+}
+
+body.dark-mode .user-card {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+body.dark-mode .user-info h3,
+body.dark-mode .user-info p {
+  color: #e0e7ff !important;
+}
+
+body.dark-mode .analytics-card {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+body.dark-mode .analytics-card h3 {
+  color: #a78bfa !important;
+}
+
+body.dark-mode .analytics-card li {
+  color: #cbd5e1 !important;
+  border-bottom-color: #475569 !important;
+}
+
+body.dark-mode .modal-content {
+  background: #2a2a3e !important;
+  color: #eee !important;
+}
+
+body.dark-mode .modal-content input {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #eee !important;
+}
+
+body.dark-mode .search-input {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #eee !important;
+}
+
+body.dark-mode .search-input:focus {
+  border-color: #a78bfa !important;
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2) !important;
+}
+
+body.dark-mode .clear-search {
+  background: #475569 !important;
+  color: #cbd5e1 !important;
+}
+
+body.dark-mode .clear-search:hover {
+  background: #64748b !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-mode .admin-badge {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+  color: #1a1a1a !important;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4) !important;
+  border-color: rgba(251, 191, 36, 0.6) !important;
+}
+
+body.dark-mode .search-results-count {
+  color: #94a3b8 !important;
+}
+
+body.dark-mode .no-results {
+  color: #64748b !important;
+}
+

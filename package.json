@@ -1,0 +1,27 @@
+{
+  "name": "didueat",
+  "version": "1.0.0",
+  "description": "Meal and water intake tracking app with sharing features",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "server": "node server/index.js",
+    "client": "cd client && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-all": "npm install && cd client && npm install",
+    "build": "cd client && npm run build"
+  },
+  "keywords": ["meal-tracker", "health", "food-diary", "water-tracker"],
+  "author": "Osaym Omar",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
