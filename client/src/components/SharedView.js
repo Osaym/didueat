@@ -178,15 +178,13 @@ function SharedView({ token, user }) {
           <div className="granted-users-list">
             {grantedUsers.map(user => (
               <div key={user.id} className="granted-user-card slide-in">
-                <div className="user-avatar">
+                <div className="user-avatar" style={{ background: user.profile_color || '#667eea' }}>
                   {user.profile_picture ? (
-                    user.profile_picture.startsWith('data:') || user.profile_picture.startsWith('http') ? (
-                      <img src={user.profile_picture} alt={user.display_name} className="profile-img" />
-                    ) : (
-                      <div className="profile-emoji">{user.profile_picture}</div>
-                    )
+                    <div className="profile-emoji">{user.profile_picture}</div>
                   ) : (
-                    '👤'
+                    <div className="profile-placeholder">
+                      {user.display_name?.charAt(0).toUpperCase() || '👤'}
+                    </div>
                   )}
                 </div>
                 <span className="granted-date">
@@ -219,15 +217,13 @@ function SharedView({ token, user }) {
                 key={user.id} 
                 className="shared-user-card slide-in"
               >
-                <div className="user-avatar">
+                <div className="user-avatar" style={{ background: user.profile_color || '#667eea' }}>
                   {user.profile_picture ? (
-                    user.profile_picture.startsWith('data:') || user.profile_picture.startsWith('http') ? (
-                      <img src={user.profile_picture} alt={user.display_name} className="profile-img" />
-                    ) : (
-                      <div className="profile-emoji">{user.profile_picture}</div>
-                    )
+                    <div className="profile-emoji">{user.profile_picture}</div>
                   ) : (
-                    '👤'
+                    <div className="profile-placeholder">
+                      {user.display_name?.charAt(0).toUpperCase() || '👤'}
+                    </div>
                   )}
                 </div>
                 {user.granted_at && (
