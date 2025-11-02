@@ -23,8 +23,8 @@ function App() {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
       
-      // Fetch fresh user data if profileColor is missing
-      if (!parsedUser.profileColor && storedToken) {
+      // Always fetch fresh user data to sync profile color and picture
+      if (storedToken) {
         fetch('http://localhost:5001/api/user/profile', {
           headers: {
             'Authorization': `Bearer ${storedToken}`
@@ -35,7 +35,8 @@ function App() {
             const updatedUser = {
               ...parsedUser,
               profileColor: data.profile_color || '#667eea',
-              profilePicture: data.profile_picture || parsedUser.profilePicture
+              profilePicture: data.profile_picture || parsedUser.profilePicture,
+              displayName: data.display_name || parsedUser.displayName
             };
             setUser(updatedUser);
             localStorage.setItem('user', JSON.stringify(updatedUser));

@@ -8,10 +8,10 @@ const API_URL = window.location.hostname === 'localhost'
 
 function Settings({ token, user, onUserUpdate }) {
   const [profile, setProfile] = useState(null); // eslint-disable-line no-unused-vars
-  const [darkMode, setDarkMode] = useState(false);
-  const [displayName, setDisplayName] = useState('');
-  const [profileColor, setProfileColor] = useState('#667eea');
-  const [profilePicture, setProfilePicture] = useState('');
+  const [darkMode, setDarkMode] = useState(user?.darkMode || false);
+  const [displayName, setDisplayName] = useState(user?.displayName || '');
+  const [profileColor, setProfileColor] = useState(user?.profileColor || '#667eea');
+  const [profilePicture, setProfilePicture] = useState(user?.profilePicture || '');
   const [securityQuestions, setSecurityQuestions] = useState([
     { question: '', answer: '' },
     { question: '', answer: '' },
@@ -70,11 +70,11 @@ function Settings({ token, user, onUserUpdate }) {
       });
       const data = await response.json();
       setProfile(data);
-      const isDark = data.darkMode === true;
+      const isDark = data.dark_mode === true;
       setDarkMode(isDark);
-      setDisplayName(data.displayName || '');
-      setProfileColor(data.profileColor || '#667eea');
-      setProfilePicture(data.profilePicture || '');
+      setDisplayName(data.display_name || '');
+      setProfileColor(data.profile_color || '#667eea');
+      setProfilePicture(data.profile_picture || '');
       setHasSecurityQuestions(data.hasSecurityQuestions || false);
       
       // If has security questions, fetch them for reset

@@ -368,13 +368,18 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    // Check if user has security questions
+    const securityQuestions = await db.getSecurityQuestions(userId);
+    const hasSecurityQuestions = securityQuestions && securityQuestions.length > 0;
+
     res.json({
       username: user.username,
       display_name: user.display_name,
       profile_picture: user.profile_picture,
       profile_color: user.profile_color,
       dark_mode: user.dark_mode,
-      is_admin: user.is_admin
+      is_admin: user.is_admin,
+      hasSecurityQuestions
     });
   } catch (error) {
     console.error(error);
