@@ -132,11 +132,13 @@ const database = {
   },
 
   getSharedWithUser: async (viewerId) => {
-    const accessRecords = await SharedAccess.find({ viewer_id: viewerId }).populate('owner_id');
+    const accessRecords = await SharedAccess.find({ viewer_id: viewerId })
+      .populate('owner_id')
+      .lean(); // Use lean() for better performance (returns plain JS objects)
     return accessRecords.map(sa => {
       if (!sa.owner_id) return null;
       return {
-        ...sa.owner_id.toObject(),
+        ...sa.owner_id,
         id: sa.owner_id._id,
         access_id: sa._id,
         granted_at: sa.created_at
@@ -145,11 +147,13 @@ const database = {
   },
 
   getSharedByUser: async (ownerId) => {
-    const accessRecords = await SharedAccess.find({ owner_id: ownerId }).populate('viewer_id');
+    const accessRecords = await SharedAccess.find({ owner_id: ownerId })
+      .populate('viewer_id')
+      .lean(); // Use lean() for better performance
     return accessRecords.map(sa => {
       if (!sa.viewer_id) return null;
       return {
-        ...sa.viewer_id.toObject(),
+        ...sa.viewer_id,
         id: sa.viewer_id._id,
         access_id: sa._id,
         granted_at: sa.created_at
@@ -205,7 +209,7 @@ const database = {
     const meals = await MealEntry.find({
       user_id: userId,
       date
-    });
+    }).lean(); // Use lean() for better performance
     
     meals.sort((a, b) => {
       const order = { breakfast: 0, lunch: 1, dinner: 2, Breakfast: 0, Lunch: 1, Dinner: 2 };
@@ -218,7 +222,8 @@ const database = {
   getMealsByUser: async (userId, limit = 30) => {
     const meals = await MealEntry.find({ user_id: userId })
       .sort({ date: -1, meal_type: 1 })
-      .limit(limit);
+      .limit(limit)
+      .lean(); // Use lean() for better performance
     
     return meals;
   },

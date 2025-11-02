@@ -150,7 +150,7 @@ function SharedView({ token, user }) {
       )}
 
       <div className="share-section">
-        <h2>Grant Access to Your Dashboard</h2>
+        <h2>🔑 Grant Access to Your Dashboard</h2>
         <p className="info-text">Allow someone to view your meal history</p>
         
         {message && <div className={`message ${message.includes('✅') ? 'success' : 'error'} fade-in`}>{message}</div>}

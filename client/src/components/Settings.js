@@ -48,7 +48,10 @@ function Settings({ token, user, onUserUpdate }) {
       setProfileColor(user.profileColor || '#667eea');
       setProfilePicture(user.profilePicture || '');
     }
-    fetchProfile();
+    // Only fetch if user data is missing
+    if (!user || !user.profileColor) {
+      fetchProfile();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -4,13 +4,15 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+const compression = require('compression');
 const db = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
-app.use(express.json());
+app.use(compression()); // Compress all HTTP responses
+app.use(express.json({ limit: '1mb' })); // Limit payload size to prevent abuse
 
 // Serve static files from the React app build folder
 app.use(express.static(path.join(__dirname, '../client/build')));
@@ -164,6 +166,8 @@ app.get('/api/meals', authenticateToken, async (req, res) => {
 
     const meals = await db.getMealsByUser(userId, limit);
 
+    // Cache meal history for 2 minutes
+    res.set('Cache-Control', 'private, max-age=120');
     res.json(meals);
   } catch (error) {
     console.error(error);
@@ -203,6 +207,8 @@ app.get('/api/shared-with-me', authenticateToken, async (req, res) => {
     const viewerId = req.user.id;
     const users = await db.getSharedWithUser(viewerId);
 
+    // Cache for 3 minutes - shared access doesn't change often
+    res.set('Cache-Control', 'private, max-age=180');
     res.json(users);
   } catch (error) {
     console.error(error);
@@ -216,6 +222,8 @@ app.get('/api/shared-by-me', authenticateToken, async (req, res) => {
     const ownerId = req.user.id;
     const users = await db.getSharedByUser(ownerId);
 
+    // Cache for 3 minutes - shared access doesn't change often
+    res.set('Cache-Control', 'private, max-age=180');
     res.json(users);
   } catch (error) {
     console.error(error);
@@ -372,6 +380,9 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
     const securityQuestions = await db.getSecurityQuestions(userId);
     const hasSecurityQuestions = securityQuestions && securityQuestions.length > 0;
 
+    // Cache for 5 minutes to reduce database queries
+    res.set('Cache-Control', 'private, max-age=300');
+    
     res.json({
       username: user.username,
       display_name: user.display_name,

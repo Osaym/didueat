@@ -39,6 +39,9 @@ const userSchema = new mongoose.Schema({
   }
 });
 
+// Add index for faster username lookups
+userSchema.index({ username: 1 });
+
 // SharedAccess Schema
 const sharedAccessSchema = new mongoose.Schema({
   owner_id: {
@@ -59,6 +62,9 @@ const sharedAccessSchema = new mongoose.Schema({
 
 // Add compound index to ensure unique owner-viewer pairs
 sharedAccessSchema.index({ owner_id: 1, viewer_id: 1 }, { unique: true });
+// Add indexes for faster lookups when querying by viewer or owner
+sharedAccessSchema.index({ viewer_id: 1 });
+sharedAccessSchema.index({ owner_id: 1 });
 
 // MealEntry Schema
 const mealEntrySchema = new mongoose.Schema({
